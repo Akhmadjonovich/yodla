@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deutsch Trainer Pro v2</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --success: #22c55e;
+            --error: #ef4444;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #e0e7ff 0%, #f1f5f9 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+
+        .app-card {
+            background: var(--card-bg);
+            width: 100%;
+            max-width: 440px;
+            padding: 32px;
+            border-radius: 28px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            position: relative;
+        }
+
+        h2 {
+            font-size: 24px;
+            font-weight: 800;
+            text-align: center;
+            margin-bottom: 24px;
+            color: var(--text-main);
+            letter-spacing: -0.5px;
+        }
+
+        .input-group { margin-bottom: 24px; }
+        
+        input {
+            width: 100%;
+            padding: 16px;
+            margin-bottom: 12px;
+            border-radius: 16px;
+            border: 2px solid var(--border);
+            font-size: 16px;
+            transition: all 0.3s ease;
+            outline: none;
+            background: #fcfdfe;
+        }
+
+        input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 16px;
+            border-radius: 16px;
+            border: none;
+            font-weight: 700;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .add-btn { background: var(--primary); color: white; margin-bottom: 12px; }
+        .add-btn:hover { background: var(--primary-dark); }
+        
+        .start-btn { background: #f1f5f9; color: var(--text-main); border: 2px solid var(--border); }
+        .start-btn:hover { background: #e2e8f0; }
+
+        .btn:active { transform: scale(0.97); }
+
+        .question-label {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 8px;
+            text-align: center;
+        }
+
+        .question-text {
+            font-size: 36px;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 32px;
+            text-align: center;
+        }
+
+        .options-grid { display: grid; gap: 12px; }
+
+        .option-btn {
+            background: #f8fafc;
+            padding: 18px;
+            border-radius: 18px;
+            border: 2px solid var(--border);
+            font-size: 17px;
+            font-weight: 600;
+            color: var(--text-main);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .option-btn.correct {
+            background: #f0fdf4 !important;
+            border-color: var(--success) !important;
+            color: var(--success) !important;
+        }
+
+        .option-btn.wrong {
+            background: #fef2f2 !important;
+            border-color: var(--error) !important;
+            color: var(--error) !important;
+        }
+
+        .progress-container {
+            width: 100%;
+            height: 10px;
+            background: #f1f5f9;
+            border-radius: 20px;
+            margin-bottom: 32px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), #818cf8);
+            width: 0%;
+            transition: width 0.4s ease;
+        }
+
+        .hidden { display: none; }
+        
+        .fade-in { animation: fadeIn 0.4s ease; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .stats { font-size: 14px; color: var(--text-muted); text-align: center; margin-top: 16px; }
+
+    </style>
+</head>
+<body>
+
+<div class="app-card">
+    <div id="setupUI" class="fade-in">
+        <h2>Yodla 1.0</h2>
+        <div class="input-group">
+            <input id="de" placeholder="Nemischa so'z (masalan: Haus)" autocomplete="off">
+            <input id="uz" placeholder="O'zbekcha tarjimasi (masalan: Uy)" autocomplete="off">
+        </div>
+        <button class="btn add-btn" onclick="addWord()"><span>➕</span> So'z qo'shish</button>
+        <button class="btn start-btn" onclick="startTest()"><span>▶️</span> Testni boshlash</button>
+        <p id="wordCount" class="stats">Hozircha so'zlar yo'q</p>
+    </div>
+
+    <div id="testUI" class="hidden fade-in">
+        <div class="progress-container">
+            <div id="progress" class="progress-bar"></div>
+        </div>
+        <div class="question-label">Tarjimasi qanday?</div>
+        <div id="question" class="question-text"></div>
+        <div class="options-grid" id="options"></div>
+    </div>
+
+    <div id="doneUI" class="hidden fade-in" style="text-align: center;">
+        <div style="font-size: 64px; margin-bottom: 16px;">🎯</div>
+        <h3 style="font-size: 24px; color: var(--text-main);">Super Natija!</h3>
+        <p style="margin: 16px 0; color: var(--text-muted);">Barcha so'zlarni o'rgandingiz.</p>
+        <button class="btn add-btn" onclick="location.reload()">Qayta boshlash</button>
+    </div>
+</div>
+
+<script>
+    let words = [];
+    let current = null;
+    let initialTotal = 0;
+    let mistakeQueue = []; // Xato qilingan so'zlarni vaqtincha muzlatish uchun
+
+    function addWord() {
+        const de = document.getElementById("de").value.trim();
+        const uz = document.getElementById("uz").value.trim();
+        
+        if (!de || !uz) return;
+
+        words.push({ de, uz, learned: false });
+        document.getElementById("de").value = "";
+        document.getElementById("uz").value = "";
+        document.getElementById("de").focus();
+        
+        document.getElementById("wordCount").innerText = `${words.length} ta so'z qo'shildi`;
+    }
+
+    function startTest() {
+        if (words.length < 4) {
+            alert("Kamida 4 ta so'z kiriting!");
+            return;
+        }
+        initialTotal = words.length;
+        document.getElementById("setupUI").classList.add("hidden");
+        document.getElementById("testUI").classList.remove("hidden");
+        nextQuestion();
+    }
+
+    function nextQuestion() {
+        const activeWords = words.filter(w => !w.learned);
+        
+        // Progressni faqat chindan o'rganilgan (learned: true) so'zlar bo'yicha hisoblash
+        const progress = ((initialTotal - activeWords.length) / initialTotal) * 100;
+        document.getElementById("progress").style.width = `${progress}%`;
+
+        if (activeWords.length === 0) {
+            document.getElementById("testUI").classList.add("hidden");
+            document.getElementById("doneUI").classList.remove("hidden");
+            return;
+        }
+
+        // Muzlatilgan (yaqinda xato qilingan) so'zlardan boshqasini tanlash
+        let candidates = activeWords.filter(w => !mistakeQueue.includes(w));
+        
+        // Agar hamma so'zlar muzlatilgan bo'lsa (kichik ro'yxatda), navbatni bo'shatib tanlaymiz
+        if (candidates.length === 0) {
+            candidates = activeWords;
+            mistakeQueue = [];
+        }
+
+        current = candidates[Math.floor(Math.random() * candidates.length)];
+        
+        document.getElementById("question").innerText = current.de;
+        renderOptions();
+    }
+
+    function renderOptions() {
+        let opts = [current.uz];
+        let allUz = words.map(w => w.uz);
+        
+        while (opts.length < 4) {
+            let rand = allUz[Math.floor(Math.random() * allUz.length)];
+            if (!opts.includes(rand)) opts.push(rand);
+        }
+        
+        opts.sort(() => Math.random() - 0.5);
+
+        const box = document.getElementById("options");
+        box.innerHTML = "";
+
+        opts.forEach(o => {
+            const b = document.createElement("button");
+            b.className = "option-btn";
+            b.innerText = o;
+            b.onclick = () => check(o, b);
+            box.appendChild(b);
+        });
+    }
+
+    function check(selected, btn) {
+        const btns = document.querySelectorAll('.option-btn');
+        btns.forEach(b => b.style.pointerEvents = 'none');
+
+        if (selected === current.uz) {
+            btn.classList.add('correct');
+            current.learned = true;
+            // To'g'ri topilsa, muzlatish ro'yxatidan (agar bo'lsa) o'chirib tashlaymiz
+            mistakeQueue = mistakeQueue.filter(w => w !== current);
+            setTimeout(nextQuestion, 800);
+        } else {
+            btn.classList.add('wrong');
+            btns.forEach(b => {
+                if (b.innerText === current.uz) b.classList.add('correct');
+            });
+
+            // Xato qilingan so'zni muzlatish navbatiga qo'shish
+            if (!mistakeQueue.includes(current)) {
+                mistakeQueue.push(current);
+            }
+            
+            // Muzlatish navbati 2 tadan oshsa, birinchisini chiqaramiz (ya'ni u qayta so'ralishi mumkin bo'ladi)
+            if (mistakeQueue.length > 2) {
+                mistakeQueue.shift();
+            }
+
+            // Xato qilinganda darhol keyingisiga o'tish
+            setTimeout(nextQuestion, 1500);
+        }
+    }
+</script>
+
+</body>
+</html>
