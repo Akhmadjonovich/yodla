@@ -26,7 +26,7 @@
         }
 
         body {
-            background: linear-gradient(135deg, #797d89 0%, #f1f5f9 100%);
+            background: linear-gradient(135deg, #e0e7ff 0%, #f1f5f9 100%);
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -93,6 +93,12 @@
         
         .start-btn { background: #f1f5f9; color: var(--text-main); border: 2px solid var(--border); }
         .start-btn:hover { background: #e2e8f0; }
+
+        .repeat-btn { background: #10b981; color: white; margin-bottom: 12px; }
+        .repeat-btn:hover { background: #059669; }
+
+        .reload-btn { background: #64748b; color: white; }
+        .reload-btn:hover { background: #475569; }
 
         .btn:active { transform: scale(0.97); }
 
@@ -172,7 +178,7 @@
 
 <div class="app-card">
     <div id="setupUI" class="fade-in">
-        <h2>Yodla 1.0</h2>
+        <h2>🇩🇪 Deutsch Pro</h2>
         <div class="input-group">
             <input id="de" placeholder="Nemischa so'z (masalan: Haus)" autocomplete="off">
             <input id="uz" placeholder="O'zbekcha tarjimasi (masalan: Uy)" autocomplete="off">
@@ -192,10 +198,12 @@
     </div>
 
     <div id="doneUI" class="hidden fade-in" style="text-align: center;">
-        <div style="font-size: 64px; margin-bottom: 16px;">🎯</div>
+        <div style="font-size: 64px; margin-bottom: 16px;">🏆</div>
         <h3 style="font-size: 24px; color: var(--text-main);">Super Natija!</h3>
-        <p style="margin: 16px 0; color: var(--text-muted);">Barcha so'zlarni o'rgandingiz.</p>
-        <button class="btn add-btn" onclick="location.reload()">Qayta boshlash</button>
+        <p style="margin: 16px 0; color: var(--text-muted);">Siz barcha so'zlarni yodlab bo'ldingiz.</p>
+        
+        <button class="btn repeat-btn" onclick="repeatTest()"><span>🔄</span> Xuddi shu so'zlarni takrorlash</button>
+        <button class="btn reload-btn" onclick="location.reload()"><span>🆕</span> Yangi so'zlar kiritish</button>
     </div>
 </div>
 
@@ -203,7 +211,7 @@
     let words = [];
     let current = null;
     let initialTotal = 0;
-    let mistakeQueue = []; // Xato qilingan so'zlarni vaqtincha muzlatish uchun
+    let mistakeQueue = []; 
 
     function addWord() {
         const de = document.getElementById("de").value.trim();
@@ -227,13 +235,25 @@
         initialTotal = words.length;
         document.getElementById("setupUI").classList.add("hidden");
         document.getElementById("testUI").classList.remove("hidden");
+        document.getElementById("doneUI").classList.add("hidden");
+        nextQuestion();
+    }
+
+    // Joriy so'zlarni qaytadan yechish funksiyasi
+    function repeatTest() {
+        // Barcha so'zlarni "o'rganilmagan" holatga qaytarish
+        words.forEach(w => w.learned = false);
+        mistakeQueue = [];
+        
+        document.getElementById("doneUI").classList.add("hidden");
+        document.getElementById("testUI").classList.remove("hidden");
+        
         nextQuestion();
     }
 
     function nextQuestion() {
         const activeWords = words.filter(w => !w.learned);
         
-        // Progressni faqat chindan o'rganilgan (learned: true) so'zlar bo'yicha hisoblash
         const progress = ((initialTotal - activeWords.length) / initialTotal) * 100;
         document.getElementById("progress").style.width = `${progress}%`;
 
@@ -243,10 +263,8 @@
             return;
         }
 
-        // Muzlatilgan (yaqinda xato qilingan) so'zlardan boshqasini tanlash
         let candidates = activeWords.filter(w => !mistakeQueue.includes(w));
         
-        // Agar hamma so'zlar muzlatilgan bo'lsa (kichik ro'yxatda), navbatni bo'shatib tanlaymiz
         if (candidates.length === 0) {
             candidates = activeWords;
             mistakeQueue = [];
@@ -288,7 +306,6 @@
         if (selected === current.uz) {
             btn.classList.add('correct');
             current.learned = true;
-            // To'g'ri topilsa, muzlatish ro'yxatidan (agar bo'lsa) o'chirib tashlaymiz
             mistakeQueue = mistakeQueue.filter(w => w !== current);
             setTimeout(nextQuestion, 800);
         } else {
@@ -297,17 +314,14 @@
                 if (b.innerText === current.uz) b.classList.add('correct');
             });
 
-            // Xato qilingan so'zni muzlatish navbatiga qo'shish
             if (!mistakeQueue.includes(current)) {
                 mistakeQueue.push(current);
             }
             
-            // Muzlatish navbati 2 tadan oshsa, birinchisini chiqaramiz (ya'ni u qayta so'ralishi mumkin bo'ladi)
             if (mistakeQueue.length > 2) {
                 mistakeQueue.shift();
             }
 
-            // Xato qilinganda darhol keyingisiga o'tish
             setTimeout(nextQuestion, 1500);
         }
     }
