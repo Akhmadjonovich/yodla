@@ -3,326 +3,316 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Yodla v2</title>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <title>Yodla AI – Premium OCR</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/tesseract.js@5/dist/tesseract.min.js"></script>
+
     <style>
         :root {
             --primary: #6366f1;
-            --primary-dark: #4f46e5;
-            --success: #22c55e;
-            --error: #ef4444;
-            --bg: #f8fafc;
+            --primary-light: #818cf8;
+            --secondary: #4f46e5;
+            --success: #10b981;
+            --error: #f43f5e;
+            --bg: #fdfdff;
             --card-bg: #ffffff;
-            --text-main: #1e293b;
-            --text-muted: #64748b;
-            --border: #e2e8f0;
+            --text: #0f172a;
+            --muted: #64748b;
+            --border: #f1f5f9;
+            --radius: 20px;
+            --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Plus Jakarta Sans', sans-serif;
-        }
+        * { box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; transition: all 0.2s ease; }
 
         body {
-            background: linear-gradient(135deg, #e0e7ff 0%, #f1f5f9 100%);
+            background-color: var(--bg);
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.15) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(16, 185, 129, 0.1) 0px, transparent 50%);
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 16px;
+            padding: 20px;
+            margin: 0;
+            color: var(--text);
         }
 
-        .app-card {
-            background: var(--card-bg);
+        .container {
             width: 100%;
             max-width: 440px;
+            background: var(--card-bg);
+            border-radius: 30px;
             padding: 32px;
-            border-radius: 28px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
-            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(255, 255, 255, 0.7);
             position: relative;
-        }
-
-        h2 {
-            font-size: 24px;
-            font-weight: 800;
-            text-align: center;
-            margin-bottom: 24px;
-            color: var(--text-main);
-            letter-spacing: -0.5px;
-        }
-
-        .input-group { margin-bottom: 24px; }
-        
-        input {
-            width: 100%;
-            padding: 16px;
-            margin-bottom: 12px;
-            border-radius: 16px;
-            border: 2px solid var(--border);
-            font-size: 16px;
-            transition: all 0.3s ease;
-            outline: none;
-            background: #fcfdfe;
-        }
-
-        input:focus {
-            border-color: var(--primary);
-            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
-        }
-
-        .btn {
-            width: 100%;
-            padding: 16px;
-            border-radius: 16px;
-            border: none;
-            font-weight: 700;
-            font-size: 16px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-
-        .add-btn { background: var(--primary); color: white; margin-bottom: 12px; }
-        .add-btn:hover { background: var(--primary-dark); }
-        
-        .start-btn { background: #f1f5f9; color: var(--text-main); border: 2px solid var(--border); }
-        .start-btn:hover { background: #e2e8f0; }
-
-        .repeat-btn { background: #10b981; color: white; margin-bottom: 12px; }
-        .repeat-btn:hover { background: #059669; }
-
-        .reload-btn { background: #64748b; color: white; }
-        .reload-btn:hover { background: #475569; }
-
-        .btn:active { transform: scale(0.97); }
-
-        .question-label {
-            font-size: 13px;
-            font-weight: 700;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            margin-bottom: 8px;
-            text-align: center;
-        }
-
-        .question-text {
-            font-size: 36px;
-            font-weight: 800;
-            color: var(--primary);
-            margin-bottom: 32px;
-            text-align: center;
-        }
-
-        .options-grid { display: grid; gap: 12px; }
-
-        .option-btn {
-            background: #f8fafc;
-            padding: 18px;
-            border-radius: 18px;
-            border: 2px solid var(--border);
-            font-size: 17px;
-            font-weight: 600;
-            color: var(--text-main);
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-
-        .option-btn.correct {
-            background: #f0fdf4 !important;
-            border-color: var(--success) !important;
-            color: var(--success) !important;
-        }
-
-        .option-btn.wrong {
-            background: #fef2f2 !important;
-            border-color: var(--error) !important;
-            color: var(--error) !important;
-        }
-
-        .progress-container {
-            width: 100%;
-            height: 10px;
-            background: #f1f5f9;
-            border-radius: 20px;
-            margin-bottom: 32px;
             overflow: hidden;
         }
 
-        .progress-bar {
-            height: 100%;
-            background: linear-gradient(90deg, var(--primary), #818cf8);
-            width: 0%;
-            transition: width 0.4s ease;
+        /* Dekorativ elementlar */
+        .container::before {
+            content: ""; position: absolute; top: -50px; right: -50px;
+            width: 100px; height: 100px; background: var(--primary);
+            filter: blur(80px); opacity: 0.1; z-index: 0;
         }
 
-        .hidden { display: none; }
+        h2 { font-weight: 800; font-size: 28px; text-align: center; margin-bottom: 24px; letter-spacing: -0.5px; z-index: 1; position: relative; }
+        h2 span { color: var(--primary); }
+
+        .input-group { margin-bottom: 20px; position: relative; z-index: 1; }
         
-        .fade-in { animation: fadeIn 0.4s ease; }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(8px); }
-            to { opacity: 1; transform: translateY(0); }
+        input {
+            width: 100%; padding: 16px 20px; border-radius: var(--radius);
+            border: 2px solid var(--border); background: #f8fafc;
+            font-size: 16px; font-weight: 500; outline: none;
         }
 
-        .stats { font-size: 14px; color: var(--text-muted); text-align: center; margin-top: 16px; }
+        input:focus { border-color: var(--primary-light); background: #fff; box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1); }
 
+        .btn {
+            width: 100%; padding: 16px; border-radius: var(--radius);
+            border: none; font-size: 16px; font-weight: 700;
+            cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px;
+            margin-bottom: 12px; z-index: 1; position: relative;
+        }
+
+        .btn-primary { background: var(--primary); color: white; box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3); }
+        .btn-primary:hover { background: var(--secondary); transform: translateY(-2px); }
+        .btn-primary:active { transform: translateY(0); }
+
+        .btn-outline { background: white; border: 2px solid var(--border); color: var(--text); }
+        .btn-outline:hover { border-color: var(--primary-light); background: #f8fafc; }
+
+        .btn-start { background: #0f172a; color: white; margin-top: 10px; }
+        .btn-start:hover { background: #1e293b; }
+
+        /* Test qismi */
+        .progress-box { margin-bottom: 25px; }
+        .progress-info { display: flex; justify-content: space-between; font-size: 13px; font-weight: 600; color: var(--muted); margin-bottom: 8px; }
+        .progress-bar { height: 12px; background: #f1f5f9; border-radius: 20px; overflow: hidden; }
+        .progress-fill { 
+            height: 100%; width: 0%; background: linear-gradient(90deg, var(--primary), var(--success)); 
+            border-radius: 20px; box-shadow: 0 0 10px rgba(99, 102, 241, 0.3);
+        }
+
+        #question { font-size: 32px; font-weight: 800; text-align: center; margin: 30px 0; color: var(--text); letter-spacing: -1px; }
+
+        .options-grid { display: grid; gap: 12px; }
+        .option-btn {
+            padding: 18px; border-radius: var(--radius); border: 2px solid var(--border);
+            background: #fff; font-size: 16px; font-weight: 600; cursor: pointer;
+            text-align: center;
+        }
+        .option-btn:hover:not(:disabled) { border-color: var(--primary); background: #f5f7ff; }
+
+        /* Loading Overlay */
+        #loading {
+            position: fixed; inset: 0; background: rgba(255,255,255,0.8);
+            backdrop-filter: blur(10px); display: none; flex-direction: column;
+            align-items: center; justify-content: center; z-index: 9999;
+        }
+        .spinner {
+            width: 60px; height: 60px; border: 6px solid #f3f3f3;
+            border-top: 6px solid var(--primary); border-radius: 50%;
+            animation: spin 1s cubic-bezier(0.68, -0.55, 0.27, 1.55) infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        .hidden { display: none !important; }
+
+        .success-card { text-align: center; animation: scaleUp 0.5s ease; }
+        @keyframes scaleUp { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+        hr { border: 0; border-top: 1px solid var(--border); margin: 25px 0; }
     </style>
 </head>
 <body>
 
-<div class="app-card">
-    <div id="setupUI" class="fade-in">
-        <h2>Yodla 2.0</h2>
-        <div class="input-group">
-            <input id="de" placeholder="Xorijiy so'z (masalan: Haus)" autocomplete="off">
-            <input id="uz" placeholder="O'zbekcha tarjimasi (masalan: Uy)" autocomplete="off">
-        </div>
-        <button class="btn add-btn" onclick="addWord()"><span>➕</span> So'z qo'shish</button>
-        <button class="btn start-btn" onclick="startTest()"><span>▶️</span> Testni boshlash</button>
-        <p id="wordCount" class="stats">Hozircha so'zlar yo'q</p>
-    </div>
+<div id="loading">
+    <div class="spinner"></div>
+    <p id="loading-text" style="margin-top:20px; font-weight:700; color: var(--primary)">Sun'iy intellekt ishlamoqda...</p>
+</div>
 
-    <div id="testUI" class="hidden fade-in">
-        <div class="progress-container">
-            <div id="progress" class="progress-bar"></div>
-        </div>
-        <div class="question-label">Tarjimasi qanday?</div>
-        <div id="question" class="question-text"></div>
-        <div class="options-grid" id="options"></div>
-    </div>
-
-    <div id="doneUI" class="hidden fade-in" style="text-align: center;">
-        <div style="font-size: 64px; margin-bottom: 16px;">🏆</div>
-        <h3 style="font-size: 24px; color: var(--text-main);">Super Natija!</h3>
-        <p style="margin: 16px 0; color: var(--text-muted);">Siz barcha so'zlarni yodlab bo'ldingiz.</p>
+<div class="container">
+    <div id="setup">
+        <h2>Yodla<span> 2.1</span></h2>
         
-        <button class="btn repeat-btn" onclick="repeatTest()"><span>🔄</span> Xuddi shu so'zlarni takrorlash</button>
-        <button class="btn reload-btn" onclick="location.reload()"><span>🆕</span> Yangi so'zlar kiritish</button>
+        <div class="input-group">
+            <input id="de" placeholder="Chet tili (masalan: Haus)">
+        </div>
+        <div class="input-group">
+            <input id="uz" placeholder="Tarjimasi (masalan: Uy)">
+        </div>
+        
+        <button class="btn btn-primary" onclick="addWord()">
+            <span>➕</span> So‘z qo‘shish
+        </button>
+
+        <hr>
+
+        <input type="file" id="fileInput" accept="image/*" style="display:none" onchange="readImage(this)">
+        <input type="file" id="cameraInput" accept="image/*" capture="environment" style="display:none" onchange="readImage(this)">
+        
+        <button class="btn btn-outline" onclick="document.getElementById('fileInput').click()">
+            <span>📁</span> Galereyadan tanlash
+        </button>
+        <button class="btn btn-outline" style="border-color: var(--success); color: var(--success)" onclick="document.getElementById('cameraInput').click()">
+            <span>📸</span> Kameradan skanerlash
+        </button>
+
+        <button class="btn btn-start" onclick="startTest()">
+            ▶ Testni boshlash
+        </button>
+        
+        <p id="count" style="text-align:center; color:var(--muted); font-size:14px; margin-top:15px; font-weight:600;">0 ta so‘z tayyor</p>
+    </div>
+
+    <div id="test" class="hidden">
+        <div class="progress-box">
+            <div class="progress-info">
+                <span id="progress-percent">0% o'rganildi</span>
+                <span id="remaining-count">Qoldi: 0</span>
+            </div>
+            <div class="progress-bar">
+                <div id="bar" class="progress-fill"></div>
+            </div>
+        </div>
+
+        <div id="question"></div>
+
+        <div id="options" class="options-grid"></div>
+    </div>
+
+    <div id="done" class="hidden success-card">
+        <div style="font-size: 80px; margin-bottom: 10px;">🏆</div>
+        <h2 style="margin-bottom: 10px;">Ajoyib natija!</h2>
+        <p style="color: var(--muted); margin-bottom: 30px;">Barcha so'zlarni xatosiz o'zlashtirdingiz.</p>
+        <button class="btn btn-primary" onclick="location.reload()">🔄 Yangi ro'yxat</button>
     </div>
 </div>
 
 <script>
-    let words = [];
-    let current = null;
+    let allWords = [];
+    let testQueue = [];
+    let currentWord = null;
     let initialTotal = 0;
-    let mistakeQueue = []; 
 
     function addWord() {
         const de = document.getElementById("de").value.trim();
         const uz = document.getElementById("uz").value.trim();
-        
-        if (!de || !uz) return;
+        if (de && uz) {
+            allWords.push({ de, uz });
+            document.getElementById("de").value = "";
+            document.getElementById("uz").value = "";
+            document.getElementById("de").focus();
+            updateCount();
+        }
+    }
 
-        words.push({ de, uz, learned: false });
-        document.getElementById("de").value = "";
-        document.getElementById("uz").value = "";
-        document.getElementById("de").focus();
+    function updateCount() {
+        document.getElementById("count").innerText = `${allWords.length} ta so‘z tayyor`;
+    }
+
+    async function readImage(input) {
+        const file = input.files[0];
+        if (!file) return;
         
-        document.getElementById("wordCount").innerText = `${words.length} ta so'z qo'shildi`;
+        const loader = document.getElementById("loading");
+        const loaderText = document.getElementById("loading-text");
+        loader.style.display = "flex";
+        loaderText.innerText = "Tasvir tahlil qilinmoqda...";
+
+        try {
+            const result = await Tesseract.recognize(file, 'deu+uzb+rus', {
+                logger: m => { if(m.status === 'recognizing text') loaderText.innerText = `Skanerlash: ${Math.round(m.progress * 100)}%`; }
+            });
+            
+            const lines = result.data.text.split("\n").filter(l => l.length > 2);
+            let found = 0;
+            lines.forEach(line => {
+                let clean = line.replace(/^[0-9\s.]+/, "").trim();
+                const parts = clean.split(/[-–—=:]/);
+                if (parts.length >= 2) {
+                    allWords.push({ de: parts[0].trim(), uz: parts[1].trim() });
+                    found++;
+                }
+            });
+            updateCount();
+            if(found > 0) alert(`✅ ${found} ta yangi so'z qo'shildi!`);
+        } catch (e) { alert("Xatolik yuz berdi!"); }
+        finally { loader.style.display = "none"; input.value = ""; }
     }
 
     function startTest() {
-        if (words.length < 4) {
-            alert("Kamida 4 ta so'z kiriting!");
-            return;
-        }
-        initialTotal = words.length;
-        document.getElementById("setupUI").classList.add("hidden");
-        document.getElementById("testUI").classList.remove("hidden");
-        document.getElementById("doneUI").classList.add("hidden");
-        nextQuestion();
+        if (allWords.length < 4) return alert("Test uchun kamida 4 ta so'z kerak!");
+        testQueue = [...allWords].sort(() => Math.random() - 0.5);
+        initialTotal = allWords.length;
+        document.getElementById("setup").classList.add("hidden");
+        document.getElementById("test").classList.remove("hidden");
+        renderQuestion();
     }
 
-    // Joriy so'zlarni qaytadan yechish funksiyasi
-    function repeatTest() {
-        // Barcha so'zlarni "o'rganilmagan" holatga qaytarish
-        words.forEach(w => w.learned = false);
-        mistakeQueue = [];
-        
-        document.getElementById("doneUI").classList.add("hidden");
-        document.getElementById("testUI").classList.remove("hidden");
-        
-        nextQuestion();
-    }
-
-    function nextQuestion() {
-        const activeWords = words.filter(w => !w.learned);
-        
-        const progress = ((initialTotal - activeWords.length) / initialTotal) * 100;
-        document.getElementById("progress").style.width = `${progress}%`;
-
-        if (activeWords.length === 0) {
-            document.getElementById("testUI").classList.add("hidden");
-            document.getElementById("doneUI").classList.remove("hidden");
+    function renderQuestion() {
+        if (testQueue.length === 0) {
+            document.getElementById("test").classList.add("hidden");
+            document.getElementById("done").classList.remove("hidden");
             return;
         }
 
-        let candidates = activeWords.filter(w => !mistakeQueue.includes(w));
-        
-        if (candidates.length === 0) {
-            candidates = activeWords;
-            mistakeQueue = [];
-        }
+        const solved = initialTotal - testQueue.length;
+        const percent = Math.round((solved / initialTotal) * 100);
+        document.getElementById("bar").style.width = percent + "%";
+        document.getElementById("progress-percent").innerText = `${percent}% o'rganildi`;
+        document.getElementById("remaining-count").innerText = `Qoldi: ${testQueue.length}`;
 
-        current = candidates[Math.floor(Math.random() * candidates.length)];
-        
-        document.getElementById("question").innerText = current.de;
-        renderOptions();
-    }
+        currentWord = testQueue[0];
+        document.getElementById("question").innerText = currentWord.de;
 
-    function renderOptions() {
-        let opts = [current.uz];
-        let allUz = words.map(w => w.uz);
-        
+        let opts = [currentWord.uz];
         while (opts.length < 4) {
-            let rand = allUz[Math.floor(Math.random() * allUz.length)];
-            if (!opts.includes(rand)) opts.push(rand);
+            let r = allWords[Math.floor(Math.random() * allWords.length)].uz;
+            if (!opts.includes(r)) opts.push(r);
         }
-        
         opts.sort(() => Math.random() - 0.5);
 
         const box = document.getElementById("options");
         box.innerHTML = "";
-
         opts.forEach(o => {
-            const b = document.createElement("button");
-            b.className = "option-btn";
-            b.innerText = o;
-            b.onclick = () => check(o, b);
-            box.appendChild(b);
+            const btn = document.createElement("button");
+            btn.className = "option-btn";
+            btn.innerText = o;
+            btn.onclick = () => check(o, btn);
+            box.appendChild(btn);
         });
     }
 
     function check(selected, btn) {
-        const btns = document.querySelectorAll('.option-btn');
-        btns.forEach(b => b.style.pointerEvents = 'none');
+        const allBtns = document.querySelectorAll(".option-btn");
+        allBtns.forEach(b => b.disabled = true);
 
-        if (selected === current.uz) {
-            btn.classList.add('correct');
-            current.learned = true;
-            mistakeQueue = mistakeQueue.filter(w => w !== current);
-            setTimeout(nextQuestion, 800);
+        if (selected === currentWord.uz) {
+            btn.style.borderColor = "var(--success)";
+            btn.style.background = "#f0fdf4";
+            btn.style.color = "var(--success)";
+            testQueue.shift();
+            setTimeout(renderQuestion, 600);
         } else {
-            btn.classList.add('wrong');
-            btns.forEach(b => {
-                if (b.innerText === current.uz) b.classList.add('correct');
+            btn.style.borderColor = "var(--error)";
+            btn.style.background = "#fef2f2";
+            btn.style.color = "var(--error)";
+            
+            allBtns.forEach(b => {
+                if (b.innerText === currentWord.uz) {
+                    b.style.borderColor = "var(--success)";
+                }
             });
 
-            if (!mistakeQueue.includes(current)) {
-                mistakeQueue.push(current);
-            }
-            
-            if (mistakeQueue.length > 2) {
-                mistakeQueue.shift();
-            }
-
-            setTimeout(nextQuestion, 1500);
+            let failed = testQueue.shift();
+            testQueue.push(failed);
+            setTimeout(renderQuestion, 1500);
         }
     }
 </script>
